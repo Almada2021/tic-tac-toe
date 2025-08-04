@@ -1,6 +1,7 @@
 import { defaultBoard } from "@/constants/defaultBoard";
+import { winCombinations } from "@/constants/winCombinations";
 import { useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, Pressable, Text, View } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 
 interface Square {
@@ -11,55 +12,26 @@ interface Square {
   endRight?: boolean;
   symbol?: "X" | "O";
 }
-// const board: Square[] = [
-//   {
-//     id: "1",
-//     endTop: true,
-//     endLeft: true,
-//   },
-//   {
-//     id: "2",
-//     endTop: true,
-//   },
-//   {
-//     id: "3",
-//     endTop: true,
-//     endRight: true,
-//   },
-//   {
-//     id: "4",
-//     endLeft: true,
-//   },
-//   {
-//     id: "5",
-//   },
-//   {
-//     id: "6",
-//     endRight: true,
-//   },
 
-//   {
-//     id: "7",
-//     endBottom: true,
-//     endLeft: true,
-//   },
-//   {
-//     id: "8",
-//     endBottom: true,
-//   },
-//   {
-//     id: "9",
-//     endBottom: true,
-//     endRight: true,
-//   },
-// ];
 export default function HomeScreen() {
   const [mode, setMode] = useState<"X" | "O">("X");
   const [board, setBoard] = useState(defaultBoard);
-
+  const [pushedItems, setPushedItems] = useState(0);
   const checkWinConditions = (board: Square[]) => {
-    console.log(board);
+    for (const combination of winCombinations) {
+      const [a, b, c] = combination;
+      const symbol = board[a].symbol;
+
+      if (symbol && symbol === board[b].symbol && symbol === board[c].symbol) {
+        setBoard(defaultBoard);
+        setPushedItems(0);
+        Alert.alert(`Ha ganado ${symbol}`);
+        return symbol; // Ganó "X" o "O"
+      }
+    }
+    return null;
   };
+  // checkWinConditions(board);
   return (
     <View>
       <FlatList
@@ -86,7 +58,11 @@ export default function HomeScreen() {
                 alignItems: "center",
               }}
               onPress={() => {
+                if (pushedItems >= 9 || item.symbol !== undefined) {
+                  return;
+                }
                 // if (!item.symbol) {
+                setPushedItems(pushedItems + 1);
                 const newBoard = board.map((item, indexOfBoard) => {
                   if (indexOfBoard === index) {
                     return {
@@ -98,7 +74,9 @@ export default function HomeScreen() {
                 });
                 setBoard(newBoard);
                 setMode((m) => (m === "X" ? "O" : "X"));
-                checkWinConditions(newBoard);
+                if (pushedItems >= 4) {
+                  checkWinConditions(newBoard);
+                }
                 // }
               }}
             >
@@ -117,22 +95,3 @@ export default function HomeScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: "absolute",
-  },
-});
