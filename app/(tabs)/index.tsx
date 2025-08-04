@@ -1,64 +1,127 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { defaultBoard } from "@/constants/defaultBoard";
+import { useState } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
+import { FlatList } from "react-native-gesture-handler";
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+interface Square {
+  id: string;
+  endTop?: boolean;
+  endBottom?: boolean;
+  endLeft?: boolean;
+  endRight?: boolean;
+  symbol?: "X" | "O";
+}
+// const board: Square[] = [
+//   {
+//     id: "1",
+//     endTop: true,
+//     endLeft: true,
+//   },
+//   {
+//     id: "2",
+//     endTop: true,
+//   },
+//   {
+//     id: "3",
+//     endTop: true,
+//     endRight: true,
+//   },
+//   {
+//     id: "4",
+//     endLeft: true,
+//   },
+//   {
+//     id: "5",
+//   },
+//   {
+//     id: "6",
+//     endRight: true,
+//   },
 
+//   {
+//     id: "7",
+//     endBottom: true,
+//     endLeft: true,
+//   },
+//   {
+//     id: "8",
+//     endBottom: true,
+//   },
+//   {
+//     id: "9",
+//     endBottom: true,
+//     endRight: true,
+//   },
+// ];
 export default function HomeScreen() {
+  const [mode, setMode] = useState<"X" | "O">("X");
+  const [board, setBoard] = useState(defaultBoard);
+
+  const checkWinConditions = (board: Square[]) => {
+    console.log(board);
+  };
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <View>
+      <FlatList
+        style={{
+          marginTop: 200,
+          marginHorizontal: "auto",
+        }}
+        keyExtractor={(item) => item.id}
+        numColumns={3}
+        renderItem={({ item, index }) => {
+          return (
+            <Pressable
+              style={{
+                minWidth: 100,
+                minHeight: 100,
+                borderColor: "black",
+                borderWidth: 2,
+                borderTopWidth: item?.endTop ? 0 : 2,
+                borderBottomWidth: item?.endBottom ? 0 : 2,
+                borderLeftWidth: item?.endLeft ? 0 : 2,
+                borderRightWidth: item?.endRight ? 0 : 2,
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+              onPress={() => {
+                // if (!item.symbol) {
+                const newBoard = board.map((item, indexOfBoard) => {
+                  if (indexOfBoard === index) {
+                    return {
+                      ...item,
+                      symbol: mode,
+                    };
+                  }
+                  return item;
+                });
+                setBoard(newBoard);
+                setMode((m) => (m === "X" ? "O" : "X"));
+                checkWinConditions(newBoard);
+                // }
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 52,
+                }}
+              >
+                {item.symbol}
+              </Text>
+            </Pressable>
+          );
+        }}
+        data={board}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     gap: 8,
   },
   stepContainer: {
@@ -70,6 +133,6 @@ const styles = StyleSheet.create({
     width: 290,
     bottom: 0,
     left: 0,
-    position: 'absolute',
+    position: "absolute",
   },
 });
