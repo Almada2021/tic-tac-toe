@@ -1,6 +1,6 @@
 import { getAuth, onAuthStateChanged } from "@react-native-firebase/auth";
 import React, { useEffect, useState } from "react";
-import { Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 
 const ProfileScreen = () => {
   const [initializing, setInitializing] = useState(true);
@@ -22,6 +22,15 @@ const ProfileScreen = () => {
   if (!user) {
     return (
       <View>
+        <Pressable
+          style={{
+            marginTop: 200,
+            padding: 20,
+          }}
+          onPress={() => {}}
+        >
+          <Text>Entrar con Google</Text>
+        </Pressable>
         <Text>Login</Text>
       </View>
     );

@@ -1,7 +1,7 @@
 import { defaultBoard } from "@/constants/defaultBoard";
 import { winCombinations } from "@/constants/winCombinations";
-import { useState } from "react";
-import { Alert, Pressable, Text, View } from "react-native";
+import { useEffect, useMemo, useState } from "react";
+import { Alert, Button, Pressable, Text, View } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 
 interface Square {
@@ -17,11 +17,11 @@ export default function HomeScreen() {
   const [mode, setMode] = useState<"X" | "O">("X");
   const [board, setBoard] = useState(defaultBoard);
   const [pushedItems, setPushedItems] = useState(0);
+  const countUndefinedItems = useMemo(() => board.filter((item) => item.symbol === undefined).length, [board]);
   const checkWinConditions = (board: Square[]) => {
     for (const combination of winCombinations) {
       const [a, b, c] = combination;
       const symbol = board[a].symbol;
-
       if (symbol && symbol === board[b].symbol && symbol === board[c].symbol) {
         setBoard(defaultBoard);
         setPushedItems(0);
@@ -31,7 +31,11 @@ export default function HomeScreen() {
     }
     return null;
   };
-  // checkWinConditions(board);
+  useEffect(() => {
+    if (countUndefinedItems == 0) {
+      Alert.alert(`Empate`);
+    }
+  }, [countUndefinedItems])
   return (
     <View>
       <FlatList
@@ -92,6 +96,17 @@ export default function HomeScreen() {
         }}
         data={board}
       />
+      <View style={{ marginTop: 20, padding: 20 }}>
+
+        <Button
+          title="Reset"
+          onPress={() => {
+            setBoard(defaultBoard);
+            setPushedItems(0);
+          }}
+
+        />
+      </View>
     </View>
   );
 }
